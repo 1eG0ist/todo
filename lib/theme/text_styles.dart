@@ -8,3 +8,10 @@ var mainTextStyle = TextStyle(
   fontWeight: FontWeight.w400,
   color: AppTheme.colors.pinkWhite,
 );
+
+var bigTextStyle = TextStyle(
+  fontSize: 24,
+  fontFamily: 'Ubuntu',
+  fontWeight: FontWeight.w400,
+  color: AppTheme.colors.pinkWhite,
+);
