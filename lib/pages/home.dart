@@ -25,15 +25,31 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-
+  
+    void menuOpen() {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(title: Text("Menu", style: mainTextStyle)),
+            body: Text("Main menu", style: mainTextStyle)
+          );
+        })
+      );
+    }
 
     return Scaffold(
         backgroundColor: AppTheme.colors.spacePurple,
-        // appBar: AppBar(
-        //   title: const Text("To-do list"),
-        //   centerTitle: true,
-        //   backgroundColor: AppTheme.colors.darkPurple,
-        // ),
+        appBar: AppBar(
+          title: Text("To-do list", style: mainTextStyle),
+          centerTitle: true,
+          backgroundColor: AppTheme.colors.darkPurple,
+          // actions: [
+          //   IconButton(
+          //       icon: Icon(Icons.menu_open_sharp, color: AppTheme.colors.pinkWhite),
+          //       onPressed: menuOpen,
+          //   )
+          // ],
+        ),
         body: ListView.builder(
             itemCount: todoList.length,
             itemBuilder: (BuildContext context, int index) {
@@ -93,6 +109,8 @@ class _HomeState extends State<Home> {
 
             }
         ),
+
+
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppTheme.colors.purple,
           onPressed: () {
@@ -100,7 +118,7 @@ class _HomeState extends State<Home> {
               return AlertDialog(
                 title: Text("Add task (30 symbols): ", style: mainTextStyle,),
                 backgroundColor: AppTheme.colors.darkPurple,
-                content: TextField(
+                content: TextField( // TODO add auto focus when dialog opening
                   style: mainTextStyle,
                   onChanged: (String value) {
                     _userNewTask = value;
