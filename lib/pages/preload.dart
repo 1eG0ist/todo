@@ -1,38 +1,27 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo/theme/app_theme.dart';
+import 'package:todo/pages/registration_area/registration.dart';
 
-class Preload extends StatefulWidget {
+import 'home.dart';
+
+
+class Preload extends StatelessWidget {
   const Preload({super.key});
-
-  @override
-  State<Preload> createState() => _PreloadState();
-}
-
-class _PreloadState extends State<Preload> {
-
-  void checkRegistration() {
-    bool userRegistration = true;
-    /*
-    * TODO create local storage or another variant for user info, then check is user registered or no
-    * */
-    if (userRegistration) {
-      Navigator.pushAndRemoveUntil(context, '/' as Route<Object?>, (route) => false);
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    checkRegistration();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.colors.spacePurple,
+      body: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          print("Zashel suda");
+          if (snapshot.hasData) {
+            return Home();
+          } else {
+            return Registration();
+          }
+        },
+      )
     );
   }
-
 }
-
