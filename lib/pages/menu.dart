@@ -6,8 +6,6 @@ import 'package:todo/cards/main_menu_card.dart';
 class Menu extends StatelessWidget {
   const Menu({super.key});
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +30,7 @@ class Menu extends StatelessWidget {
               Text("Tasks", style: bigTextStyle),
               () {
                 // TODO change arrow color on todo page
-                Navigator.pushNamed(context, '/todo');
+                Navigator.pushNamed(context, '/menu/todo');
               }
             ),
             menuCard(

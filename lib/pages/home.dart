@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo/theme/app_theme.dart';
-import 'package:todo/theme/button_styles.dart';
+import 'package:todo/theme/buttons/button_styles.dart';
 import 'package:todo/theme/gradients.dart';
 import 'package:todo/theme/text_styles.dart';
 
@@ -40,7 +40,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
         backgroundColor: AppTheme.colors.spacePurple,
         appBar: AppBar(
-          title: Text("To-do list", style: mainTextStyle),
+          title: Text("To-do list", style: bigTextStyle),
           centerTitle: true,
           backgroundColor: AppTheme.colors.darkPurple,
           // actions: [
@@ -116,7 +116,7 @@ class _HomeState extends State<Home> {
           onPressed: () {
             showDialog(context: context, builder: (BuildContext context) {
               return AlertDialog(
-                title: Text("Add task (30 symbols): ", style: mainTextStyle,),
+                title: Text("Add task (50 symbols): ", style: mainTextStyle,),
                 backgroundColor: AppTheme.colors.darkPurple,
                 content: TextField( // TODO add auto focus when dialog opening
                   style: mainTextStyle,

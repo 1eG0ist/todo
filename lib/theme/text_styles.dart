@@ -9,6 +9,14 @@ var mainTextStyle = TextStyle(
   color: AppTheme.colors.pinkWhite,
 );
 
+var italicTextStyle = TextStyle(
+  fontStyle: FontStyle.italic,
+  fontSize: 24,
+  fontFamily: 'Ubuntu',
+  fontWeight: FontWeight.w400,
+  color: AppTheme.colors.purple,
+);
+
 var bigTextStyle = TextStyle(
   fontSize: 24,
   fontFamily: 'Ubuntu',

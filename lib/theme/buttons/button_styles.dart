@@ -7,3 +7,10 @@ import 'package:todo/theme/app_theme.dart';
 ButtonStyle elevatedButtonStyle = ButtonStyle(
   backgroundColor: MaterialStateProperty.all(AppTheme.colors.purple)
 );
+
+ButtonStyle outlinedButtonStyle = ElevatedButton.styleFrom(
+  side: BorderSide(width: 2.0, color: AppTheme.colors.pinkWhite),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(32.0),
+  ),
+);
