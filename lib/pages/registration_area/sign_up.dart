@@ -64,6 +64,9 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       backgroundColor: AppTheme.colors.spacePurple,
         appBar: AppBar(
+          iconTheme: IconThemeData(
+            color: AppTheme.colors.pinkWhite,
+          ),
           title: Text("Sign up", style: bigTextStyle),
           centerTitle: true,
           backgroundColor: AppTheme.colors.darkPurple,
