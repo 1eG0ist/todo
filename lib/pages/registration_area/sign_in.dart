@@ -8,7 +8,7 @@ import 'package:todo/theme/buttons/container_button_decorations.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/text_fields/text_field_decorations/default_text_field_decoration.dart';
 import '../../theme/text_styles.dart';
-import '../home.dart';
+import '../home_page_area/home.dart';
 import 'forgot_pw_page.dart';
 
 
