@@ -8,7 +8,8 @@ import 'package:todo/theme/buttons/container_button_decorations.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/text_fields/text_field_decorations/default_text_field_decoration.dart';
 import '../../theme/text_styles.dart';
-import '../home.dart';
+import '../home_page_area/home.dart';
+import 'forgot_pw_page.dart';
 
 
 class SignIn extends StatefulWidget {
@@ -55,6 +56,9 @@ class _SignInState extends State<SignIn> {
     return Scaffold(
       backgroundColor: AppTheme.colors.spacePurple,
       appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: AppTheme.colors.pinkWhite,
+        ),
         title: Text("Sign in", style: bigTextStyle),
         centerTitle: true,
         backgroundColor: AppTheme.colors.darkPurple,
@@ -120,8 +124,32 @@ class _SignInState extends State<SignIn> {
                       )
                   ),
                 ),
+                
+                const SizedBox(height: 5),
+
+                // Forgot password button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            return ForgotPasswordPage();
+                          }));
+                        },
+                        child: const Text("Forgot password?", style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.bold
+                          )
+                        )
+                      )
+                    ],
+                  ),
+                ),
 
                 const SizedBox(height: 25),
+
                 // sign in button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
