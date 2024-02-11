@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,48 +17,121 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
 
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _ageController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  bool isPasswordErrorVisible = false;
-  final _passwordConfirmPasswordError = const Text(
-      "Your password and confirm password not equals",
-      style: TextStyle(color: Colors.red, fontFamily: "Ubuntu", fontSize: 18),
-  );
-
   @override
   void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _ageController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
+  Icon titleIcon = Icon(Icons.lock_outline, color: AppTheme.colors.pinkWhite, size: 100,);
+
+  Future showCustomDialog(Text text) {
+    return showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        backgroundColor: Colors.red,
+        content: text
+      );
+    });
+  }
+
+  Future addUserDetails(String firstName, String lastName, int age, String email) async {
+    await FirebaseFirestore.instance.collection('users').add({
+      'first_name': firstName,
+      'last_name': lastName,
+      'age': age,
+      'email': email,
+    });
+  }
+
   Future signUp() async {
-    if (_passwordController.text.trim() == _confirmPasswordController.text.trim()) {
+
+    bool _errorFlag = false;
+    if (_firstNameController.text.trim() == "") {
+      _errorFlag = true;
+      showCustomDialog(
+          Text("Please enter your name", style: mainTextStyle)
+      );
+    }
+    else if (_lastNameController.text.trim() == "") {
+      _errorFlag = true;
+      showCustomDialog(
+          Text("Please enter your surname", style: mainTextStyle)
+      );
+    }
+    else if (_ageController.text.trim() == "") {
+      _errorFlag = true;
+      showCustomDialog(
+          Text("Please enter your age", style: mainTextStyle)
+      );
+    }
+    else if (int.parse(_ageController.text) > 120 || int.parse(_ageController.text) < 3) {
+      _errorFlag = true;
+      showCustomDialog(
+          Text("I don't think that's your real age.", style: mainTextStyle)
+      );
+    }
+    else if (_emailController.text.trim().length < 6 ||
+        _emailController.text.trim().split("@").length == 1 ||
+        _emailController.text.trim().split("@")[1].split(".").length == 1) {
+      _errorFlag = true;
+      showCustomDialog(
+          Text("I don't think that's your real email.", style: mainTextStyle)
+      );
+    }
+    else if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
+      _errorFlag = true;
+      showCustomDialog(
+          Text("Your password and confirm password not equals", style: mainTextStyle)
+      );
+    }
+    else if (_passwordController.text.trim().length < 6) {
+      _errorFlag = true;
+      showCustomDialog(
+          Text("Password password must be longer then 5 symbols", style: mainTextStyle)
+      );
+    }
+
+    if (!_errorFlag) {
+      // create user
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim()
       );
-    } else {
-      setState(() {
-        isPasswordErrorVisible = !isPasswordErrorVisible;
-      });
-    }
 
-    if (FirebaseAuth.instance.currentUser != null ) {
-      setState(() {
+      // add user details
+      addUserDetails(
+          _firstNameController.text.trim(),
+          _lastNameController.text.trim(),
+          int.parse(_ageController.text.trim()),
+          _emailController.text.trim()
+      );
+
+      if (FirebaseAuth.instance.currentUser != null) {
+        setState(() {
         titleIcon = Icon(Icons.lock_open, color: Colors.greenAccent, size: 100,);
-        isPasswordErrorVisible = false;
-      });
-    } else {
-      titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
+        });
+      } else {
+        setState(() {
+          titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
+        });
+      }
     }
   }
-
-  // default icon state
-  Icon titleIcon = Icon(Icons.lock_outline, color: AppTheme.colors.pinkWhite, size: 100,);
 
   @override
   Widget build(BuildContext context) {
@@ -80,12 +154,79 @@ class _SignUpState extends State<SignUp> {
                   const SizedBox(height: 50),
                   titleIcon,
                   Text("H E L L O", style: bigTextStyle),
-                  const SizedBox(height: 25),
-                  isPasswordErrorVisible ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: _passwordConfirmPasswordError,
-                  ) : Container(),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 50),
+                  // first name text field
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                        decoration: defaultBoxDecoration,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: TextField(
+                            controller: _firstNameController,
+                            inputFormatters: [LengthLimitingTextInputFormatter(50)],
+                            style: mainTextStyle,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.connect_without_contact, color: AppTheme.colors.pinkWhite),
+                                border: InputBorder.none,
+                                hintText: "First name",
+                                hintStyle: TextStyle(
+                                  color: AppTheme.colors.hintPinkWhite,
+                                )
+                            ),
+                          ),
+                        )
+                    ),
+                  ),
+                  const SizedBox(height: 10,),
+                  // last name text field
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                        decoration: defaultBoxDecoration,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: TextField(
+                            controller: _lastNameController,
+                            inputFormatters: [LengthLimitingTextInputFormatter(50)],
+                            style: mainTextStyle,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.connect_without_contact, color: AppTheme.colors.pinkWhite),
+                                border: InputBorder.none,
+                                hintText: "Last name",
+                                hintStyle: TextStyle(
+                                  color: AppTheme.colors.hintPinkWhite,
+                                )
+                            ),
+                          ),
+                        )
+                    ),
+                  ),
+                  const SizedBox(height: 10,),
+                  // age text field
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                        decoration: defaultBoxDecoration,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: TextField(
+                            controller: _ageController,
+                            inputFormatters: [LengthLimitingTextInputFormatter(50)],
+                            style: mainTextStyle,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.child_care, color: AppTheme.colors.pinkWhite),
+                                border: InputBorder.none,
+                                hintText: "Age",
+                                hintStyle: TextStyle(
+                                  color: AppTheme.colors.hintPinkWhite,
+                                )
+                            ),
+                          ),
+                        )
+                    ),
+                  ),
+                  const SizedBox(height: 10,),
                   // email text field
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
