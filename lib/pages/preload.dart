@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo/pages/home_page_area/todo_list.dart';
 import 'package:todo/pages/registration_area/registration.dart';
 
 import 'home_page_area/home.dart';
