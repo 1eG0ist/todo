@@ -12,6 +12,10 @@ class Registration extends StatefulWidget {
 }
 
 class _RegistrationState extends State<Registration> {
+
+  /*
+  * TODO add possibility to register with google
+  * */
   @override
   Widget build(BuildContext context) {
     return Scaffold(
