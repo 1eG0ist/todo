@@ -37,58 +37,25 @@ class _ProfileState extends State<Profile> {
   // }
 
   Future getUserInfo() async {
-    await Future.delayed(const Duration(seconds: 2));
-    _auth = FirebaseAuth.instance;
-    _authStateChanges = _auth.authStateChanges();
-    _authStateChanges.listen((User? user) async {
-      if (user != null) {
-        await FirebaseFirestore.instance.collection('users')
-            .where('email', isEqualTo: user.email.toString())
-            .get().then((QuerySnapshot querySnapshot) => {
-          querySnapshot.docs.forEach((doc) {
-            setState(() {
-              userInfo = doc.data()! as Map<String, dynamic>;
-            });
-            print("Hello!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
-            print(doc.data());
-          }),
+    User? user = FirebaseAuth.instance.currentUser;
+    await FirebaseFirestore.instance.collection('users')
+        .where('email', isEqualTo: user?.email.toString())
+        .get().then((QuerySnapshot querySnapshot) => {
+      querySnapshot.docs.forEach((doc) {
+        userDocID = doc.id;
+        setState(() {
+          userInfo = doc.data()! as Map<String, dynamic>;
         });
-      }
+      }),
     });
-
-    // if (user != null) {
-    //   await FirebaseFirestore.instance.collection('users')
-    //       .where('email', isEqualTo: user.email.toString())
-    //       .get().then((QuerySnapshot querySnapshot) => {
-    //     querySnapshot.docs.forEach((doc) {
-    //       userInfo = doc.data()! as Map<String, dynamic>;
-    //       print("Hello!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
-    //       print(doc.data());
-    //     }),
-    //   });
-    // }
   }
-
-  // Future getUserInfo() async {
-  //   await Future.delayed(const Duration(seconds: 2));
-  //   User? user = FirebaseAuth.instance.currentUser;
-  //
-  //   if (user != null) {
-  //     await FirebaseFirestore.instance.collection('users')
-  //       .where('email', isEqualTo: user.email.toString())
-  //       .get().then((QuerySnapshot querySnapshot) => {
-  //         querySnapshot.docs.forEach((doc) {
-  //           userInfo = doc.data()! as Map<String, dynamic>;
-  //           print("Hello!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
-  //           print(doc.data());
-  //         }),
-  //     });
-  //   }
-  // }
+  
+  void updateUserAvatarNumber() async {
+    await FirebaseFirestore.instance.collection("users").doc(userDocID).update({"avatar_number": userInfo["avatar_number"]});
+  }
 
   @override
   void initState() {
-    print("lol");
     getUserInfo();
     super.initState();
   }
@@ -98,57 +65,96 @@ class _ProfileState extends State<Profile> {
     return Scaffold(
       backgroundColor: AppTheme.colors.spacePurple,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // avatar
-              Center(
-               child: Image(
-                 image: AssetImage('assets/avatars/avatar_1.png'), //${userInfo["avatar_number"]}
-                 height: MediaQuery.of(context).size.width - 100,
-               ),
-              ),
-              const SizedBox(height: 15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(onPressed: () {
-
-                  }, icon: Icon(Icons.keyboard_double_arrow_left, color: AppTheme.colors.pinkWhite),
-                  ),
-                  MaterialButton(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // avatar
+                Center(
+                 child: Image(
+                   image: AssetImage('assets/avatars/avatar_${userInfo["avatar_number"]}.png'), //${userInfo["avatar_number"]}
+                   height: MediaQuery.of(context).size.width - 100,
+                 ),
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(onPressed: () {
+                      setState(() {
+                        userInfo["avatar_number"] -= 1;
+                        if (userInfo["avatar_number"] <= 0) {
+                          userInfo["avatar_number"] = 6;
+                        }
+                      });
+                    }, icon: Icon(Icons.keyboard_double_arrow_left, color: AppTheme.colors.pinkWhite),
                     ),
-                    onPressed: () {
+                    MaterialButton(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      onPressed: updateUserAvatarNumber,
+                      color: AppTheme.colors.purple,
+                      child: Text("Save", style: mainTextStyle),
+                    ),
+                    IconButton(onPressed: () {
+                      setState(() {
+                        userInfo["avatar_number"] += 1;
+                        if (userInfo["avatar_number"] >= 7) {
+                          userInfo["avatar_number"] = 1;
+                        }
+                      });
+                    }, icon: Icon(Icons.keyboard_double_arrow_right, color: AppTheme.colors.pinkWhite)
+                    ),
+                  ],
+                ),
+                Divider(color: AppTheme.colors.white,),
+                const SizedBox(height: 15),
+                Text("Email", style: miniTextStyle),
+                Text(userInfo["email"].toString(), style: mainTextStyle,),
+                const SizedBox(height: 20),
+                Text("Name", style: miniTextStyle),
+                Text(userInfo["first_name"].toString(), style: mainTextStyle,),
+                const SizedBox(height: 20),
+                Text("Surname", style: miniTextStyle),
+                Text(userInfo["last_name"].toString(), style: mainTextStyle,),
+                const SizedBox(height: 20),
+                Text("Age", style: miniTextStyle),
+                Text(userInfo["age"].toString(), style: mainTextStyle,),
+                const SizedBox(height: 20,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MaterialButton(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      onPressed: () {
 
-                    },
-                    color: AppTheme.colors.purple,
-                    child: Text("Change avatar", style: mainTextStyle),
-                  ),
-                  IconButton(onPressed: () {
-
-                  }, icon: Icon(Icons.keyboard_double_arrow_right, color: AppTheme.colors.pinkWhite)
-                  ),
-                ],
-              ),
-              Divider(color: AppTheme.colors.white,),
-              const SizedBox(height: 15),
-              Text("Email", style: miniTextStyle),
-              Text(userInfo["email"].toString(), style: mainTextStyle,),
-              const SizedBox(height: 20),
-              Text("Name", style: miniTextStyle),
-              Text(userInfo["first_name"].toString(), style: mainTextStyle,),
-              const SizedBox(height: 20),
-              Text("Surname", style: miniTextStyle),
-              Text(userInfo["last_name"].toString(), style: mainTextStyle,),
-              const SizedBox(height: 20),
-              Text("Age", style: miniTextStyle),
-              Text(userInfo["age"].toString(), style: mainTextStyle,),
-            ],
+                      },
+                      color: AppTheme.colors.purple,
+                      child: Text("Change", style: mainTextStyle),
+                    ),
+                    const SizedBox(width: 10,),
+                    MaterialButton(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      onPressed: () {
+                        FirebaseAuth.instance.signOut();
+                      },
+                      color: AppTheme.colors.purple,
+                      child: Text("Log out", style: mainTextStyle),
+                    ),
+                  ]
+                ),
+              ],
+            ),
           ),
         ),
       ),

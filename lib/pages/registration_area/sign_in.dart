@@ -31,16 +31,22 @@ class _SignInState extends State<SignIn> {
   * TODO hide sign in page when auth accessed
   * */
   Future signIn() async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim()
-    );
-    if (FirebaseAuth.instance.currentUser != null ) {
-      setState(() {
-        titleIcon = Icon(Icons.lock_open, color: Colors.greenAccent, size: 100,);
-      });
-    } else {
-      titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim()
+      );
+
+      // if all is okay
+      if (FirebaseAuth.instance.currentUser != null) {
+        setState(() {
+          titleIcon = Icon(Icons.lock_open, color: Colors.greenAccent, size: 100,);
+        });
+      } else {
+        titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
+      }
+    } catch (e) {
+      print("Sign in error: $e");
     }
   }
 
