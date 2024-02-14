@@ -17,6 +17,11 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
 
+  /*
+  * TODO: for first time add data to hive, and update them when user send something to firebase
+  *  it will delete 0.2 sec loading every time when user swap to any page when app have db request
+  * */
+
   late FirebaseAuth _auth;
   late Stream<User?> _authStateChanges;
   late String userDocID;

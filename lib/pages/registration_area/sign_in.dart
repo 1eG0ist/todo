@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:todo/dialogs.dart';
 import 'package:todo/main.dart';
 import 'package:todo/theme/buttons/container_button_decorations.dart';
 
@@ -32,10 +34,27 @@ class _SignInState extends State<SignIn> {
   * */
   Future signIn() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim()
-      );
+      bool emailExists = false;
+      await FirebaseFirestore.instance.collection('users')
+          .where('email', isEqualTo: _emailController.text.trim())
+          .get().then((QuerySnapshot querySnapshot) => {
+        querySnapshot.docs.forEach((doc) {
+          print("Zashel suda!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+          emailExists = true;
+        }),
+      });
+      if (emailExists) {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim()
+        );
+      } else {
+        showCustomErrDialog(
+            Text("This email has not been registered yet! Try to sign up.", style: mainTextStyle),
+            context
+        );
+      }
+
 
       // if all is okay
       if (FirebaseAuth.instance.currentUser != null) {
@@ -44,9 +63,23 @@ class _SignInState extends State<SignIn> {
         });
       } else {
         titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
+        showCustomErrDialog(
+            Text("Something went wrong", style: mainTextStyle),
+            context
+        );
       }
+      Navigator.of(context).pop(); // auto close sign in page when user registered
     } catch (e) {
-      print("Sign in error: $e");
+      if (e is FirebaseAuthException) {
+        if (e.code == "invalid-email") {
+          showCustomErrDialog(
+              Text("The email field is filled in incorrectly! Try again.", style: mainTextStyle,),
+              context
+          );
+        }
+      } else {
+        print("Other Error: $e");
+      }
     }
   }
 
