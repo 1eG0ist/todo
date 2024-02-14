@@ -55,6 +55,7 @@ class _SignUpState extends State<SignUp> {
       'last_name': lastName,
       'age': age,
       'email': email,
+      'avatar_number': 1,
     });
   }
 

@@ -23,3 +23,10 @@ var bigTextStyle = TextStyle(
   fontWeight: FontWeight.w400,
   color: AppTheme.colors.pinkWhite,
 );
+
+var miniTextStyle = TextStyle(
+  fontSize: 12,
+  fontFamily: 'Ubuntu',
+  fontWeight: FontWeight.w400,
+  color: AppTheme.colors.darkPink,
+);
