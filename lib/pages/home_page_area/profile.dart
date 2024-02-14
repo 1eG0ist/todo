@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo/DB_crud/users_info/get_user_info.dart';
-import 'package:todo/main.dart';
-import 'package:todo/pages/registration_area/routes.dart';
 import 'package:todo/theme/text_styles.dart';
 
 import '../../theme/app_theme.dart';
@@ -17,24 +14,20 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
 
-  late FirebaseAuth _auth;
-  late Stream<User?> _authStateChanges;
+  /*
+  * TODO: for first time add data to hive, and update them when user send something to firebase
+  *  it will delete 0.2 sec loading every time when user swap to any page when app have db request
+  * */
+
   late String userDocID;
   late Map<String, dynamic> userInfo = {
+    "avatar_number": 1,
     "email": "...",
     "first_name": "...",
     "last_name": "...",
     "age": "...",
   };
   late String userEmail;
-
-  // void getUserEmail() async {
-  //   User? user = FirebaseAuth.instance.currentUser;
-  //
-  //   if (user != null) {
-  //     userEmail = user.email.toString();
-  //   }
-  // }
 
   Future getUserInfo() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -62,7 +55,24 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return userInfo["email"] == "..." ?
+    Scaffold( // loading indicator variant
+      backgroundColor: AppTheme.colors.spacePurple,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: AppTheme.colors.pinkWhite),
+                ],
+              )
+          ),
+        ),
+      ),
+    )
+        :
+    Scaffold( // profile page variant
       backgroundColor: AppTheme.colors.spacePurple,
       body: SafeArea(
         child: SingleChildScrollView(

@@ -1,14 +1,13 @@
-import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:todo/main.dart';
+import 'package:todo/dialogs.dart';
 import 'package:todo/theme/buttons/container_button_decorations.dart';
 
 import '../../theme/app_theme.dart';
 import '../../theme/text_fields/text_field_decorations/default_text_field_decoration.dart';
 import '../../theme/text_styles.dart';
-import '../home_page_area/home.dart';
 import 'forgot_pw_page.dart';
 
 
@@ -32,21 +31,69 @@ class _SignInState extends State<SignIn> {
   * */
   Future signIn() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim()
-      );
-
-      // if all is okay
-      if (FirebaseAuth.instance.currentUser != null) {
-        setState(() {
-          titleIcon = Icon(Icons.lock_open, color: Colors.greenAccent, size: 100,);
-        });
+      if (_emailController.text.trim() == "") {
+        showCustomErrDialog(
+            Text("Please, enter your email.", style: mainTextStyle),
+            context
+        );
+      } else if (_passwordController.text.trim() == "") {
+        showCustomErrDialog(
+            Text("Please, enter your password.", style: mainTextStyle),
+            context
+        );
       } else {
-        titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
+        showLoadingIndicator(context);
+
+        bool emailExists = false;
+        await FirebaseFirestore.instance.collection('users')
+            .where('email', isEqualTo: _emailController.text.trim())
+            .get().then((QuerySnapshot querySnapshot) => {
+          querySnapshot.docs.forEach((doc) {
+            emailExists = true;
+          }),
+        });
+
+        if (emailExists) {
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim()
+          );
+          setState(() {
+            titleIcon = Icon(Icons.lock_open, color: Colors.greenAccent, size: 100,);
+          });
+          Navigator.of(context).pop(); // hide loading indicator
+          Navigator.of(context).pop(); // auto close sign in page when user registered
+        } else {
+          setState(() {
+            titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
+          });
+          Navigator.of(context).pop(); // hide loading indicator
+          showCustomErrDialog(
+              Text("This email has not been registered yet! Try to sign up.", style: mainTextStyle),
+              context
+          );
+        }
       }
     } catch (e) {
-      print("Sign in error: $e");
+      setState(() {
+        titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
+      });
+      Navigator.of(context).pop();
+      if (e is FirebaseAuthException) {
+        if (e.code == "invalid-email") {
+          showCustomErrDialog(
+              Text("The email field is filled in incorrectly! Try again.", style: mainTextStyle,),
+              context
+          );
+        } else if (e.code == "invalid-credential") {
+          showCustomErrDialog(
+              Text("Wrong password! Try again.", style: mainTextStyle,),
+              context
+          );
+        }
+      } else {
+        print("Other Error: $e");
+      }
     }
   }
 
