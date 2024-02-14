@@ -11,3 +11,12 @@ Future<dynamic>? showCustomErrDialog(Text text, BuildContext cont) {
     );
   });
 }
+
+Future<dynamic>? showLoadingIndicator(BuildContext cont) {
+  return showDialog(
+      context: cont,
+      builder: (context) {
+        return const Center(child: CircularProgressIndicator());
+      }
+  );
+}

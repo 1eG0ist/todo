@@ -62,30 +62,25 @@ class _SignUpState extends State<SignUp> {
 
   Future signUp() async {
 
-    bool _errorFlag = false;
     if (_firstNameController.text.trim() == "") {
-      _errorFlag = true;
       showCustomErrDialog(
           Text("Please enter your name", style: mainTextStyle),
           context
       );
     }
     else if (_lastNameController.text.trim() == "") {
-      _errorFlag = true;
       showCustomErrDialog(
           Text("Please enter your surname", style: mainTextStyle),
           context
       );
     }
     else if (_ageController.text.trim() == "") {
-      _errorFlag = true;
       showCustomErrDialog(
           Text("Please enter your age", style: mainTextStyle),
           context
       );
     }
     else if (int.parse(_ageController.text) > 120 || int.parse(_ageController.text) < 3) {
-      _errorFlag = true;
       showCustomErrDialog(
           Text("I don't think that's your real age.", style: mainTextStyle),
           context
@@ -94,29 +89,25 @@ class _SignUpState extends State<SignUp> {
     else if (_emailController.text.trim().length < 6 ||
         _emailController.text.trim().split("@").length == 1 ||
         _emailController.text.trim().split("@")[1].split(".").length == 1) {
-      _errorFlag = true;
       showCustomErrDialog(
           Text("I don't think that's your real email.", style: mainTextStyle),
           context
       );
     }
     else if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
-      _errorFlag = true;
       showCustomErrDialog(
           Text("Your password and confirm password not equals", style: mainTextStyle),
           context
       );
     }
     else if (_passwordController.text.trim().length < 6) {
-      _errorFlag = true;
       showCustomErrDialog(
           Text("Password password must be longer then 5 symbols", style: mainTextStyle),
           context
       );
-    }
-
-    if (!_errorFlag) {
+    } else {
       try {
+        showLoadingIndicator(context);
         // create user
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: _emailController.text.trim(),
@@ -131,17 +122,16 @@ class _SignUpState extends State<SignUp> {
             _emailController.text.trim()
         );
 
-        if (FirebaseAuth.instance.currentUser != null) {
-          setState(() {
-            titleIcon = Icon(Icons.lock_open, color: Colors.greenAccent, size: 100,);
-          });
-        } else {
-          setState(() {
-            titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
-          });
-        }
+        setState(() {
+          titleIcon = Icon(Icons.lock_open, color: Colors.greenAccent, size: 100,);
+        });
+        Navigator.of(context).pop(); // hide loading indicator
         Navigator.of(context).pop(); // auto close sign in page when user created
       } catch (e) {
+        Navigator.of(context).pop();
+        setState(() {
+          titleIcon = Icon(Icons.lock_outline, color: Colors.red, size: 100,);
+        });
         if (e is FirebaseAuthException) {
           if (e.code == "email-already-in-use") {
             showCustomErrDialog(
