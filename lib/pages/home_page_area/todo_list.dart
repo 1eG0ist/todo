@@ -1,8 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:todo/theme/app_theme.dart';
 import 'package:todo/theme/buttons/button_styles.dart';
 import 'package:todo/theme/gradients.dart';
 import 'package:todo/theme/text_styles.dart';
+import 'package:todo/utils/todo_tile.dart';
+
+import '../../dialogs/add_new_task_dialog.dart';
+import '../../dialogs/dialogs.dart';
+import '../../dialogs/loading_indicator_dialog.dart';
+import '../../validation_checks/date_checks.dart';
 
 class TodoList extends StatefulWidget {
   const TodoList({super.key});
@@ -13,133 +21,150 @@ class TodoList extends StatefulWidget {
 
 class _TodoListState extends State<TodoList> {
 
+  final _titleAddTaskController = TextEditingController();
+  final _textAddTaskController = TextEditingController();
+  final _dueDateAddTaskController = TextEditingController();
+
   String _userNewTask = "";
-  List todoList = [];
+  List<Map<String, dynamic>> todoList = [ // title, text, created date, date of expected completion, state
+    // [
+    //   "Create video",
+    //   "Need to create minecraft big video tutorial with mods and shaders and a lot of more things",
+    //   "21.12.23 01:22",
+    //   "15.02.2024",
+    //   "2"
+    // ],
+    // [
+    //   "flutter video tutorial",
+    //   "need to check this video and conspect any specific things, like you know",
+    //   "21.12.23 04:12",
+    //   "20.02.2024",
+    //   "1"
+    // ]
+  ];
+
+  void getTasks() async {
+    todoList.clear();
+    User? user = FirebaseAuth.instance.currentUser;
+    await FirebaseFirestore.instance.collection('tasks')
+        .where('email', isEqualTo: user?.email.toString())
+        .get().then((QuerySnapshot querySnapshot) => {
+      querySnapshot.docs.forEach((doc) {
+        setState(() {
+          print(doc.id);
+          Map<String, dynamic> taskData = doc.data()! as Map<String, dynamic>;
+          taskData["docId"] = doc.id.toString();
+          todoList.add(taskData);
+        });
+      }),
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-
-    todoList.addAll(["Buy milk", "Learn Flutter", "Помыть посуду"]);
+    getTasks();
+  }
+  
+  bool checkAddingTaskFields() {
+    if (_titleAddTaskController.text.trim().length < 3) {
+      showCustomErrDialog("Too short title", context);
+      return false;
+    } else if (_textAddTaskController.text.trim().length < 10) {
+      showCustomErrDialog("Too short text", context);
+      return false;
+    } else if (!isValidDateDMY(_dueDateAddTaskController.text.trim())) {
+      showCustomErrDialog("Something went wrong with due date field! Try again in day.month.year format", context);
+      return false;
+    }
+    return true;
   }
 
+  void saveNewTask() async {
+    if (checkAddingTaskFields()) {
+      DateTime now = DateTime.now();
+      String date = "${now.day}.${now.month}.${now.year.toString().substring(2)} ${now.hour}:${now.minute}";
+      await FirebaseFirestore.instance.collection('tasks').add({
+          'email': FirebaseAuth.instance.currentUser!.email.toString(),
+          'title': _titleAddTaskController.text.trim(),
+          'text': _textAddTaskController.text.trim(),
+          'date': date,
+          'due_date': _dueDateAddTaskController.text.trim(),
+          'state': "0",
+      });
+      getTasks();
+      cl();
+    }
+
+  }
+
+  void clearControllers() {
+    setState(() {
+      _textAddTaskController.clear();
+      _titleAddTaskController.clear();
+      _dueDateAddTaskController.clear();
+    });
+  }
+
+  void cl() {
+    Navigator.of(context).pop();
+    clearControllers();
+  }
+
+  void createNewTaskDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AddNewTaskDialogBox(
+            titleController: _titleAddTaskController,
+            textController: _textAddTaskController,
+            dateController: _dueDateAddTaskController,
+            onSave: saveNewTask,
+            onCancel: cl,
+          );
+        }
+    );
+  }
+  /*
+  * TODO maybe add archive functionality for tasks
+  * */
   @override
   Widget build(BuildContext context) {
 
-    void menuOpen() {
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (BuildContext context) {
-            return Scaffold(
-                appBar: AppBar(title: Text("Menu", style: mainTextStyle)),
-                body: Text("Main menu", style: mainTextStyle)
-            );
-          })
-      );
-    }
-
-    return Scaffold(
+    return todoList.isEmpty ?
+    const LoadingIndicatorDialog()
+        :
+    Scaffold(
       backgroundColor: AppTheme.colors.spacePurple,
-      body: ListView.builder(
-          itemCount: todoList.length,
-          itemBuilder: (BuildContext context, int index) {
-
-            return Dismissible(
-              key: Key(todoList[index]),
-
-              child: Card(
-                color: Colors.transparent,
-
-                child: Container(
-                    decoration: BoxDecoration(
-                        gradient: darkPurpleGradient,
-                        borderRadius: const BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(
-                            width: 1,
-                            color: AppTheme.colors.black
-                        )
-                    ),
-                    child: ListTile(
-                        leading: Icon(
-                            Icons.task,
-                            color: AppTheme.colors.pinkWhite
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            Icons.delete_forever_outlined,
-                            color: AppTheme.colors.pinkWhite,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              todoList.removeAt(index);
-                            });
-                          },
-                        ),
-                        title: Text(todoList[index], style: mainTextStyle)
-                    )
-                ),
-
-              ),
-
-              onDismissed: (DismissDirection direction) {
-                if (direction == DismissDirection.startToEnd) {
-                  setState(() {
-                    todoList.removeAt(index);
-                  });
-                } else {
-                  setState(() {
-                    todoList.removeAt(index);
-                  });
-                }
-              },
-
-            );
-
-
-          }
-      ),
-
-
       floatingActionButton: FloatingActionButton(
-          backgroundColor: AppTheme.colors.purple,
-          onPressed: () {
-            showDialog(context: context, builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("Add task (50 symbols): ", style: mainTextStyle,),
-                backgroundColor: AppTheme.colors.darkPurple,
-                content: TextField( // TODO add auto focus when dialog opening
-                  style: mainTextStyle,
-                  onChanged: (String value) {
-                    _userNewTask = value;
-                  },
-                  maxLength: 50,
+        backgroundColor: AppTheme.colors.purple,
 
-                ),
-                actions: [
-                  ElevatedButton(
-                      style: elevatedButtonStyle,
-                      onPressed: () {
-                        setState(() {
-                          todoList.add(_userNewTask);
-                        });
-
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("Save", style: mainTextStyle)
-                  ),
-                  ElevatedButton(
-                      style: elevatedButtonStyle,
-                      onPressed: () { Navigator.of(context).pop(); },
-                      child: Text("Close", style: mainTextStyle)
-                  )
-                ],
-              );
-            });
-          },
-          child: Icon(
-              Icons.add,
-              color: AppTheme.colors.pinkWhite
-          )
+        onPressed: createNewTaskDialog,
+        elevation: 0,
+        child: Icon(Icons.add, color: AppTheme.colors.pinkWhite),
       ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: ListView.separated(
+            itemCount: todoList.length,
+            separatorBuilder: (BuildContext context, int index) {
+              return const SizedBox(height: 10);
+            },
+            itemBuilder: (context, index) {
+              return TodoTile(
+                title: todoList[index]["title"],
+                taskText: todoList[index]["text"],
+                createdDate: todoList[index]["date"],
+                dueDate: todoList[index]["due_date"],
+                taskState: todoList[index]["state"],
+                taskDocId: todoList[index]["docId"],
+                onChanged: getTasks,
+              );
+            },
+          ),
+        ),
+      )
     );
 
 
