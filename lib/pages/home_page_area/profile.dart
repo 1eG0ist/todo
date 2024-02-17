@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:todo/dialogs/loading_indicator_dialog.dart';
 import 'package:todo/theme/text_styles.dart';
 
 import '../../theme/app_theme.dart';
@@ -56,21 +57,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return userInfo["email"] == "..." ?
-    Scaffold( // loading indicator variant
-      backgroundColor: AppTheme.colors.spacePurple,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(color: AppTheme.colors.pinkWhite),
-                ],
-              )
-          ),
-        ),
-      ),
-    )
+    const LoadingIndicatorDialog()
         :
     Scaffold( // profile page variant
       backgroundColor: AppTheme.colors.spacePurple,

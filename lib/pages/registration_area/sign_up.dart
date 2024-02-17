@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../dialogs.dart';
+import '../../dialogs/dialogs.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/buttons/container_button_decorations.dart';
 import '../../theme/text_fields/text_field_decorations/default_text_field_decoration.dart';
@@ -64,25 +64,25 @@ class _SignUpState extends State<SignUp> {
 
     if (_firstNameController.text.trim() == "") {
       showCustomErrDialog(
-          Text("Please enter your name", style: mainTextStyle),
+          "Please enter your name",
           context
       );
     }
     else if (_lastNameController.text.trim() == "") {
       showCustomErrDialog(
-          Text("Please enter your surname", style: mainTextStyle),
+          "Please enter your surname",
           context
       );
     }
     else if (_ageController.text.trim() == "") {
       showCustomErrDialog(
-          Text("Please enter your age", style: mainTextStyle),
+          "Please enter your age",
           context
       );
     }
     else if (int.parse(_ageController.text) > 120 || int.parse(_ageController.text) < 3) {
       showCustomErrDialog(
-          Text("I don't think that's your real age.", style: mainTextStyle),
+          "I don't think that's your real age.",
           context
       );
     }
@@ -90,19 +90,19 @@ class _SignUpState extends State<SignUp> {
         _emailController.text.trim().split("@").length == 1 ||
         _emailController.text.trim().split("@")[1].split(".").length == 1) {
       showCustomErrDialog(
-          Text("I don't think that's your real email.", style: mainTextStyle),
+          "I don't think that's your real email.",
           context
       );
     }
     else if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
       showCustomErrDialog(
-          Text("Your password and confirm password not equals", style: mainTextStyle),
+          "Your password and confirm password not equals",
           context
       );
     }
     else if (_passwordController.text.trim().length < 6) {
       showCustomErrDialog(
-          Text("Password password must be longer then 5 symbols", style: mainTextStyle),
+          "Password password must be longer then 5 symbols",
           context
       );
     } else {
@@ -135,7 +135,7 @@ class _SignUpState extends State<SignUp> {
         if (e is FirebaseAuthException) {
           if (e.code == "email-already-in-use") {
             showCustomErrDialog(
-                Text("This email already used! Try to sign in.", style: mainTextStyle),
+                "This email already used! Try to sign in.",
                 context
             );
           }

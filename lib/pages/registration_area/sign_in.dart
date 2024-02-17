@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:todo/dialogs.dart';
+import 'package:todo/dialogs/dialogs.dart';
 import 'package:todo/theme/buttons/container_button_decorations.dart';
 
 import '../../theme/app_theme.dart';
@@ -33,12 +33,12 @@ class _SignInState extends State<SignIn> {
     try {
       if (_emailController.text.trim() == "") {
         showCustomErrDialog(
-            Text("Please, enter your email.", style: mainTextStyle),
+            "Please, enter your email.",
             context
         );
       } else if (_passwordController.text.trim() == "") {
         showCustomErrDialog(
-            Text("Please, enter your password.", style: mainTextStyle),
+            "Please, enter your password.",
             context
         );
       } else {
@@ -69,7 +69,7 @@ class _SignInState extends State<SignIn> {
           });
           Navigator.of(context).pop(); // hide loading indicator
           showCustomErrDialog(
-              Text("This email has not been registered yet! Try to sign up.", style: mainTextStyle),
+              "This email has not been registered yet! Try to sign up.",
               context
           );
         }
@@ -82,12 +82,12 @@ class _SignInState extends State<SignIn> {
       if (e is FirebaseAuthException) {
         if (e.code == "invalid-email") {
           showCustomErrDialog(
-              Text("The email field is filled in incorrectly! Try again.", style: mainTextStyle,),
+              "The email field is filled in incorrectly! Try again.",
               context
           );
         } else if (e.code == "invalid-credential") {
           showCustomErrDialog(
-              Text("Wrong password! Try again.", style: mainTextStyle,),
+              "Wrong password! Try again.",
               context
           );
         }

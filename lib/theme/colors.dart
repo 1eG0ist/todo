@@ -10,9 +10,10 @@ class AppColors {
   final darkPurple = const Color(0xFF350b49);
   final purple = const Color(0xFF581279);
   final darkPink = const Color(0xFF8e0798);
-  // final _ = const Color(0xFF);
-  // final _ = const Color(0xFF);
-  // final _ = const Color(0xFF);
+  final attentionRed1 = const Color(0xFF87093f);
+  final attentionRed2 = const Color(0xFFa7084c);
+  final doneGreen1 = const Color(0xFF098751);
+  final doneGreen2 = const Color(0xFF08a763);
 
   const AppColors();
 }
