@@ -51,11 +51,13 @@ class _TodoListState extends State<TodoList> {
         .get().then((QuerySnapshot querySnapshot) => {
       querySnapshot.docs.forEach((doc) {
         setState(() {
-          todoList.add(doc.data()! as Map<String, dynamic>);
+          print(doc.id);
+          Map<String, dynamic> taskData = doc.data()! as Map<String, dynamic>;
+          taskData["docId"] = doc.id.toString();
+          todoList.add(taskData);
         });
       }),
     });
-    print(todoList);
   }
 
   @override
@@ -123,11 +125,13 @@ class _TodoListState extends State<TodoList> {
         }
     );
   }
-
+  /*
+  * TODO maybe add archive functionality for tasks
+  * */
   @override
   Widget build(BuildContext context) {
 
-    return todoList.length == 0 ?
+    return todoList.isEmpty ?
     const LoadingIndicatorDialog()
         :
     Scaffold(
@@ -148,13 +152,14 @@ class _TodoListState extends State<TodoList> {
               return const SizedBox(height: 10);
             },
             itemBuilder: (context, index) {
-              print("!!!!!!!!!!!!!!!!!!!!!!!" + todoList[index]["title"]);
               return TodoTile(
                 title: todoList[index]["title"],
                 taskText: todoList[index]["text"],
                 createdDate: todoList[index]["date"],
                 dueDate: todoList[index]["due_date"],
                 taskState: todoList[index]["state"],
+                taskDocId: todoList[index]["docId"],
+                onChanged: getTasks,
               );
             },
           ),
