@@ -1,29 +1,43 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:todo/theme/text_styles.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/buttons/dialog_actions_button.dart';
 import '../theme/text_fields/text_field_decorations/default_text_field_decoration.dart';
+import '../theme/text_styles.dart';
+import '../validation_checks/task_info_check.dart';
 
-class AddNewTaskDialogBox extends StatelessWidget {
-  final TextEditingController titleController;
-  final TextEditingController textController;
-  final TextEditingController dateController;
-  final VoidCallback onSave;
-  final VoidCallback onCancel;
+class TaskInfoDialog extends StatelessWidget {
 
-  const AddNewTaskDialogBox({
+  final Map<String, dynamic> taskInfo;
+  final VoidCallback onChanged;
+
+  TaskInfoDialog({
     super.key,
-    required this.titleController,
-    required this.textController,
-    required this.dateController,
-    required this.onSave,
-    required this.onCancel,
+    required this.taskInfo,
+    required this.onChanged,
   });
+
+
+
 
   @override
   Widget build(BuildContext context) {
+    final _titleChangeTaskController = TextEditingController(text: taskInfo["title"]);
+    final _textChangeTaskController = TextEditingController(text: taskInfo["text"]);
+    final _dueDateChangeTaskController = TextEditingController(text: taskInfo["due_date"]);
+    void onSave() async {
+      if (checkTaskFields(_titleChangeTaskController.text.trim() ,_textChangeTaskController.text.trim(), _dueDateChangeTaskController.text.trim(), context)) {
+        await FirebaseFirestore.instance.collection("tasks").doc(taskInfo["docId"]).update({
+          'title': _titleChangeTaskController.text.trim(),
+          'text': _textChangeTaskController.text.trim(),
+          'due_date': _dueDateChangeTaskController.text.trim(),
+        });
+        onChanged();
+        Navigator.of(context).pop();
+      };
+    }
     return AlertDialog(
 
       backgroundColor: AppTheme.colors.darkPurple,
@@ -39,7 +53,7 @@ class AddNewTaskDialogBox extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: TextField(
-                    controller: titleController,
+                    controller: _titleChangeTaskController,
                     minLines: 1,
                     maxLines: 3,
                     inputFormatters: [LengthLimitingTextInputFormatter(50)],
@@ -64,7 +78,7 @@ class AddNewTaskDialogBox extends StatelessWidget {
                   child: TextField(
                     minLines: 1,
                     maxLines: 3,
-                    controller: textController,
+                    controller: _textChangeTaskController,
                     inputFormatters: [LengthLimitingTextInputFormatter(300)],
                     style: mainTextStyle,
                     decoration: InputDecoration(
@@ -89,7 +103,7 @@ class AddNewTaskDialogBox extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 10),
                   child: TextField(
                     maxLines: 1,
-                    controller: dateController,
+                    controller: _dueDateChangeTaskController,
                     inputFormatters: [LengthLimitingTextInputFormatter(300)],
                     style: mainTextStyle,
                     decoration: InputDecoration(
@@ -113,7 +127,7 @@ class AddNewTaskDialogBox extends StatelessWidget {
         ),
         DialogActionsButton(
             text: "Close",
-            onPressed: onCancel
+            onPressed: () { Navigator.of(context).pop(); }
         ),
       ],
     );

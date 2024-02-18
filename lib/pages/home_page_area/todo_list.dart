@@ -1,16 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:todo/dialogs/task_info_dialog.dart';
 import 'package:todo/theme/app_theme.dart';
-import 'package:todo/theme/buttons/button_styles.dart';
-import 'package:todo/theme/gradients.dart';
-import 'package:todo/theme/text_styles.dart';
 import 'package:todo/utils/todo_tile.dart';
 
 import '../../dialogs/add_new_task_dialog.dart';
-import '../../dialogs/dialogs.dart';
 import '../../dialogs/loading_indicator_dialog.dart';
-import '../../validation_checks/date_checks.dart';
+import '../../validation_checks/task_info_check.dart';
 
 class TodoList extends StatefulWidget {
   const TodoList({super.key});
@@ -25,23 +22,7 @@ class _TodoListState extends State<TodoList> {
   final _textAddTaskController = TextEditingController();
   final _dueDateAddTaskController = TextEditingController();
 
-  String _userNewTask = "";
-  List<Map<String, dynamic>> todoList = [ // title, text, created date, date of expected completion, state
-    // [
-    //   "Create video",
-    //   "Need to create minecraft big video tutorial with mods and shaders and a lot of more things",
-    //   "21.12.23 01:22",
-    //   "15.02.2024",
-    //   "2"
-    // ],
-    // [
-    //   "flutter video tutorial",
-    //   "need to check this video and conspect any specific things, like you know",
-    //   "21.12.23 04:12",
-    //   "20.02.2024",
-    //   "1"
-    // ]
-  ];
+  List<Map<String, dynamic>> todoList = [];
 
   void getTasks() async {
     todoList.clear();
@@ -51,7 +32,6 @@ class _TodoListState extends State<TodoList> {
         .get().then((QuerySnapshot querySnapshot) => {
       querySnapshot.docs.forEach((doc) {
         setState(() {
-          print(doc.id);
           Map<String, dynamic> taskData = doc.data()! as Map<String, dynamic>;
           taskData["docId"] = doc.id.toString();
           todoList.add(taskData);
@@ -65,23 +45,9 @@ class _TodoListState extends State<TodoList> {
     super.initState();
     getTasks();
   }
-  
-  bool checkAddingTaskFields() {
-    if (_titleAddTaskController.text.trim().length < 3) {
-      showCustomErrDialog("Too short title", context);
-      return false;
-    } else if (_textAddTaskController.text.trim().length < 10) {
-      showCustomErrDialog("Too short text", context);
-      return false;
-    } else if (!isValidDateDMY(_dueDateAddTaskController.text.trim())) {
-      showCustomErrDialog("Something went wrong with due date field! Try again in day.month.year format", context);
-      return false;
-    }
-    return true;
-  }
 
   void saveNewTask() async {
-    if (checkAddingTaskFields()) {
+    if (checkTaskFields(_titleAddTaskController.text.trim(), _textAddTaskController.text.trim(), _dueDateAddTaskController.text.trim(), context)) {
       DateTime now = DateTime.now();
       String date = "${now.day}.${now.month}.${now.year.toString().substring(2)} ${now.hour}:${now.minute}";
       await FirebaseFirestore.instance.collection('tasks').add({
@@ -113,18 +79,31 @@ class _TodoListState extends State<TodoList> {
 
   void createNewTaskDialog() {
     showDialog(
+      context: context,
+      builder: (context) {
+        return AddNewTaskDialogBox(
+          titleController: _titleAddTaskController,
+          textController: _textAddTaskController,
+          dateController: _dueDateAddTaskController,
+          onSave: saveNewTask,
+          onCancel: cl,
+        );
+      }
+    );
+  }
+
+  void createTaskInfoDialog(Map<String, dynamic> taskInfo) {
+    showDialog(
         context: context,
         builder: (context) {
-          return AddNewTaskDialogBox(
-            titleController: _titleAddTaskController,
-            textController: _textAddTaskController,
-            dateController: _dueDateAddTaskController,
-            onSave: saveNewTask,
-            onCancel: cl,
+          return TaskInfoDialog(
+            taskInfo: taskInfo,
+            onChanged: getTasks,
           );
         }
     );
   }
+
   /*
   * TODO maybe add archive functionality for tasks
   * */
@@ -152,14 +131,17 @@ class _TodoListState extends State<TodoList> {
               return const SizedBox(height: 10);
             },
             itemBuilder: (context, index) {
-              return TodoTile(
-                title: todoList[index]["title"],
-                taskText: todoList[index]["text"],
-                createdDate: todoList[index]["date"],
-                dueDate: todoList[index]["due_date"],
-                taskState: todoList[index]["state"],
-                taskDocId: todoList[index]["docId"],
-                onChanged: getTasks,
+              return GestureDetector(
+                onTap: () { createTaskInfoDialog(todoList[index]); },
+                child: TodoTile(
+                  title: todoList[index]["title"],
+                  taskText: todoList[index]["text"],
+                  createdDate: todoList[index]["date"],
+                  dueDate: todoList[index]["due_date"],
+                  taskState: todoList[index]["state"],
+                  taskDocId: todoList[index]["docId"],
+                  onChanged: getTasks,
+                ),
               );
             },
           ),
