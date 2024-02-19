@@ -21,6 +21,7 @@ class _TodoListState extends State<TodoList> {
   final _titleAddTaskController = TextEditingController();
   final _textAddTaskController = TextEditingController();
   final _dueDateAddTaskController = TextEditingController();
+  final _isLoaded = [true];
 
   List<Map<String, dynamic>> todoList = [];
 
@@ -37,6 +38,9 @@ class _TodoListState extends State<TodoList> {
           todoList.add(taskData);
         });
       }),
+    });
+    setState(() {
+      _isLoaded[0] = false;
     });
   }
 
@@ -110,7 +114,7 @@ class _TodoListState extends State<TodoList> {
   @override
   Widget build(BuildContext context) {
 
-    return todoList.isEmpty ?
+    return todoList.isEmpty && _isLoaded[0] ?
     const LoadingIndicatorDialog()
         :
     Scaffold(

@@ -89,7 +89,7 @@ class _ProfileState extends State<Profile> {
                     }, icon: Icon(Icons.keyboard_double_arrow_left, color: AppTheme.colors.pinkWhite),
                     ),
                     MaterialButton(
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -127,7 +127,7 @@ class _ProfileState extends State<Profile> {
                   children: [
                     const SizedBox(width: 10,),
                     MaterialButton(
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
