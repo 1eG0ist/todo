@@ -5,7 +5,9 @@ import 'package:todo/dialogs/task_info_dialog.dart';
 import 'package:todo/theme/app_theme.dart';
 import 'package:todo/utils/todo_tile.dart';
 
+import '../../DB_crud/delete_task.dart';
 import '../../dialogs/add_new_task_dialog.dart';
+import '../../dialogs/confirmation_dialog.dart';
 import '../../dialogs/loading_indicator_dialog.dart';
 import '../../validation_checks/task_info_check.dart';
 
@@ -22,7 +24,7 @@ class _TodoListState extends State<TodoList> {
   final _textAddTaskController = TextEditingController();
   final _dueDateAddTaskController = TextEditingController();
   final _complexityAddTaskController = TextEditingController(text: "1");
-  final _isLoaded = [true];
+  final _isNotLoaded = [true];
 
   List<Map<String, dynamic>> todoList = [];
 
@@ -41,7 +43,7 @@ class _TodoListState extends State<TodoList> {
       }),
     });
     setState(() {
-      _isLoaded[0] = false;
+      _isNotLoaded[0] = false;
     });
   }
 
@@ -100,6 +102,22 @@ class _TodoListState extends State<TodoList> {
     );
   }
 
+  void deleteAllTasks() async {
+    bool result = await ConfirmationDialog.showConfirmationDialog(
+        context,
+        "Do you want delete all tasks? (points will be awarded for all completed tasks)"
+    );
+
+    if (result) {
+      todoList.forEach((task) {
+        deleteTask(task["state"], task["complexity"], task["docId"], () {});
+      });
+      setState(() {
+        todoList = [];
+      });
+    }
+  }
+
   void createTaskInfoDialog(Map<String, dynamic> taskInfo) {
     showDialog(
         context: context,
@@ -118,17 +136,32 @@ class _TodoListState extends State<TodoList> {
   @override
   Widget build(BuildContext context) {
 
-    return todoList.isEmpty && _isLoaded[0] ?
+    return todoList.isEmpty && _isNotLoaded[0] ?
     const LoadingIndicatorDialog()
         :
     Scaffold(
       backgroundColor: AppTheme.colors.spacePurple,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.colors.purple,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(left: 30),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            FloatingActionButton(
+              backgroundColor: AppTheme.colors.purple,
 
-        onPressed: createNewTaskDialog,
-        elevation: 0,
-        child: Icon(Icons.add, color: AppTheme.colors.pinkWhite),
+              onPressed: deleteAllTasks,
+              elevation: 0,
+              child: Icon(Icons.delete_sweep_outlined, color: AppTheme.colors.pinkWhite),
+            ),
+            FloatingActionButton(
+              backgroundColor: AppTheme.colors.purple,
+
+              onPressed: createNewTaskDialog,
+              elevation: 0,
+              child: Icon(Icons.add, color: AppTheme.colors.pinkWhite),
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: Padding(
