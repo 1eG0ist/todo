@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:todo/DB_crud/users_info/get_user_info.dart';
 import 'package:todo/theme/gradients.dart';
 import 'package:todo/theme/text_styles.dart';
 
+import '../DB_crud/delete_task.dart';
 import '../theme/app_theme.dart';
 
 class TodoTile extends StatelessWidget {
@@ -41,16 +41,7 @@ class TodoTile extends StatelessWidget {
 
         ),
         children: [
-          SlidableAction(onPressed: ((context) async {
-              if (taskState == "2") {
-                Map<String, dynamic> userInfo = await getUserInfo();
-                await FirebaseFirestore.instance.collection("users").doc(userInfo["docId"]).update({
-                  "tasks_points": (int.parse(userInfo["tasks_points"].toString()) + int.parse(taskComplexity)).toString()
-                });
-              }
-              await FirebaseFirestore.instance.collection("tasks").doc(taskDocId).delete();
-              onChanged();
-            }),
+          SlidableAction(onPressed: (context) => deleteTask(taskState, taskComplexity, taskDocId, onChanged),
             icon: Icons.delete_outline_rounded,
             backgroundColor: Colors.red,
             borderRadius: const BorderRadius.all(Radius.circular(12)),
