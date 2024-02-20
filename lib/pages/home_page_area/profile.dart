@@ -59,7 +59,15 @@ class _ProfileState extends State<Profile> {
     return userInfo["email"] == "..." ?
     const LoadingIndicatorDialog()
         :
-    Scaffold( // profile page variant
+    // profile page variant
+    Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppTheme.colors.purple,
+
+        onPressed: () {FirebaseAuth.instance.signOut();},
+        elevation: 0,
+        child: Icon(Icons.logout, color: AppTheme.colors.pinkWhite),
+      ),
       backgroundColor: AppTheme.colors.spacePurple,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -125,23 +133,6 @@ class _ProfileState extends State<Profile> {
                 Text("Points", style: miniTextStyle),
                 Text(userInfo["tasks_points"].toString(), style: mainTextStyle,),
                 const SizedBox(height: 20,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(width: 10,),
-                    MaterialButton(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      onPressed: () {
-                        FirebaseAuth.instance.signOut();
-                      },
-                      color: AppTheme.colors.purple,
-                      child: Text("Log out", style: mainTextStyle),
-                    ),
-                  ]
-                ),
               ],
             ),
           ),
