@@ -1,36 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:todo/theme/text_styles.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class GetUserName extends StatelessWidget {
-  final String documentId;
-
-  GetUserName(this.documentId);
-
-  @override
-  Widget build(BuildContext context) {
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
-
-    return FutureBuilder<DocumentSnapshot>(
-      future: users.doc(documentId).get(),
-      builder:
-          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-
-        if (snapshot.hasError) {
-          return Text("Something went wrong");
-        }
-
-        if (snapshot.hasData && !snapshot.data!.exists) {
-          return Text("Document does not exist");
-        }
-
-        if (snapshot.connectionState == ConnectionState.done) {
-          Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-          return Text("Full Name: ${data['full_name']} ${data['last_name']}");
-        }
-
-        return Text("loading");
-      },
-    );
-  }
+Future<Map<String, dynamic>> getUserInfo() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  Map<String, dynamic> taskData = {};
+  await FirebaseFirestore.instance.collection('users')
+      .where('email', isEqualTo: user?.email.toString())
+      .get().then((QuerySnapshot querySnapshot) => {
+    querySnapshot.docs.forEach((doc) {
+      taskData = doc.data()! as Map<String, dynamic>;
+      taskData["docId"] = doc.id.toString();
+    }),
+  });
+  return taskData;
 }

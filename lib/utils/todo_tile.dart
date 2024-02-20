@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:todo/DB_crud/users_info/get_user_info.dart';
 import 'package:todo/theme/gradients.dart';
 import 'package:todo/theme/text_styles.dart';
 
@@ -16,8 +17,6 @@ class TodoTile extends StatelessWidget {
   final String taskState;
   final String taskDocId;
   final VoidCallback onChanged;
-  // final VoidCallback onMarkAttention;
-  // final VoidCallback onMarkDone;
 
   const TodoTile({
     super.key,
@@ -29,10 +28,8 @@ class TodoTile extends StatelessWidget {
     required this.taskState,
     required this.taskDocId,
     required this.onChanged
-    // required this.onDelete,
-    // required this.onMarkAttention,
-    // required this.onMarkDone,
   });
+
   /*
   * TODO maybe create statistic field in user which show how many tasks he passed
   * */
@@ -45,6 +42,12 @@ class TodoTile extends StatelessWidget {
         ),
         children: [
           SlidableAction(onPressed: ((context) async {
+              if (taskState == "2") {
+                Map<String, dynamic> userInfo = await getUserInfo();
+                await FirebaseFirestore.instance.collection("users").doc(userInfo["docId"]).update({
+                  "tasks_points": (int.parse(userInfo["tasks_points"].toString()) + int.parse(taskComplexity)).toString()
+                });
+              }
               await FirebaseFirestore.instance.collection("tasks").doc(taskDocId).delete();
               onChanged();
             }),
