@@ -21,6 +21,7 @@ class _TodoListState extends State<TodoList> {
   final _titleAddTaskController = TextEditingController();
   final _textAddTaskController = TextEditingController();
   final _dueDateAddTaskController = TextEditingController();
+  final _complexityAddTaskController = TextEditingController(text: "1");
   final _isLoaded = [true];
 
   List<Map<String, dynamic>> todoList = [];
@@ -58,6 +59,7 @@ class _TodoListState extends State<TodoList> {
           'email': FirebaseAuth.instance.currentUser!.email.toString(),
           'title': _titleAddTaskController.text.trim(),
           'text': _textAddTaskController.text.trim(),
+          'complexity': _complexityAddTaskController.text.trim(),
           'date': date,
           'due_date': _dueDateAddTaskController.text.trim(),
           'state': "0",
@@ -73,6 +75,7 @@ class _TodoListState extends State<TodoList> {
       _textAddTaskController.clear();
       _titleAddTaskController.clear();
       _dueDateAddTaskController.clear();
+      _complexityAddTaskController.text = "1";
     });
   }
 
@@ -89,6 +92,7 @@ class _TodoListState extends State<TodoList> {
           titleController: _titleAddTaskController,
           textController: _textAddTaskController,
           dateController: _dueDateAddTaskController,
+          complexityController: _complexityAddTaskController,
           onSave: saveNewTask,
           onCancel: cl,
         );
@@ -140,6 +144,7 @@ class _TodoListState extends State<TodoList> {
                 child: TodoTile(
                   title: todoList[index]["title"],
                   taskText: todoList[index]["text"],
+                  taskComplexity: todoList[index]["complexity"],
                   createdDate: todoList[index]["date"],
                   dueDate: todoList[index]["due_date"],
                   taskState: todoList[index]["state"],

@@ -10,6 +10,7 @@ class TodoTile extends StatelessWidget {
 
   final String title;
   final String taskText;
+  final String taskComplexity;
   final String createdDate;
   final String dueDate;
   final String taskState;
@@ -22,6 +23,7 @@ class TodoTile extends StatelessWidget {
     super.key,
     required this.title,
     required this.taskText,
+    required this.taskComplexity,
     required this.createdDate,
     required this.dueDate,
     required this.taskState,
@@ -85,7 +87,8 @@ class TodoTile extends StatelessWidget {
         child: Column(
           children: [
             Row( mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Container( // Task title
+              // Task title
+              SizedBox(
                 width: MediaQuery.of(context).size.width/1.7,
                 child: ClipRect(
                   child: Text(
@@ -107,9 +110,10 @@ class TodoTile extends StatelessWidget {
             ]),
             const SizedBox(height: 5),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  width: MediaQuery.of(context).size.width - 80, // Установите желаемую максимальную ширину
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 90,
                   child: ClipRect(
                     child: Text(
                         taskText,
@@ -119,6 +123,7 @@ class TodoTile extends StatelessWidget {
                     ),
                   ),
                 ),
+                Text(taskComplexity, style: mainTextStyle)
               ],
             )
           ],

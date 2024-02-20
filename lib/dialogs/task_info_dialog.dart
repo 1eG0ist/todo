@@ -19,20 +19,24 @@ class TaskInfoDialog extends StatelessWidget {
     required this.onChanged,
   });
 
-
-
-
   @override
   Widget build(BuildContext context) {
     final _titleChangeTaskController = TextEditingController(text: taskInfo["title"]);
     final _textChangeTaskController = TextEditingController(text: taskInfo["text"]);
     final _dueDateChangeTaskController = TextEditingController(text: taskInfo["due_date"]);
+    final _complexityChangeTaskController = TextEditingController(text: taskInfo["complexity"]);
     void onSave() async {
-      if (checkTaskFields(_titleChangeTaskController.text.trim() ,_textChangeTaskController.text.trim(), _dueDateChangeTaskController.text.trim(), context)) {
+      if (checkTaskFields(
+          _titleChangeTaskController.text.trim(),
+          _textChangeTaskController.text.trim(),
+          _dueDateChangeTaskController.text.trim(),
+          context)
+      ) {
         await FirebaseFirestore.instance.collection("tasks").doc(taskInfo["docId"]).update({
           'title': _titleChangeTaskController.text.trim(),
           'text': _textChangeTaskController.text.trim(),
           'due_date': _dueDateChangeTaskController.text.trim(),
+          'complexity': _complexityChangeTaskController.text.trim(),
         });
         onChanged();
         Navigator.of(context).pop();
@@ -117,6 +121,57 @@ class TaskInfoDialog extends StatelessWidget {
                   ),
                 )
             ),
+
+            // choose complexity of a task from 1 to 3
+            Row(
+              children: [
+                Text("Complexity: ", style: mainTextStyle),
+                IconButton(
+                    onPressed: () {
+                      int n = int.parse(_complexityChangeTaskController.text.trim());
+                      if (n == 1) {
+                        _complexityChangeTaskController.text = "3";
+                      } else {
+                        _complexityChangeTaskController.text = (n-1).toString();
+                      }
+                    },
+                    icon: Icon(
+                        Icons.keyboard_arrow_left_outlined,
+                        color: AppTheme.colors.darkPink
+                    )
+                ),
+
+                // Text(complexityController.text.trim(), style: mainTextStyle),
+                SizedBox(
+                    width: 30,
+                    child: TextField(
+                      controller: _complexityChangeTaskController,
+                      readOnly: true,
+                      textAlign: TextAlign.center,
+                      style: mainTextStyle,
+                      decoration: InputDecoration.collapsed(
+                        hintText: "",
+                        border: InputBorder.none,
+                      ),
+                    )
+                ),
+
+                IconButton(
+                    onPressed: () {
+                      int n = int.parse(_complexityChangeTaskController.text.trim());
+                      if (n == 3) {
+                        _complexityChangeTaskController.text = "1";
+                      } else {
+                        _complexityChangeTaskController.text = (n+1).toString();
+                      }
+                    },
+                    icon: Icon(
+                        Icons.keyboard_arrow_right_outlined,
+                        color: AppTheme.colors.darkPink
+                    )
+                ),
+              ],
+            )
           ],
         ),
       ),
