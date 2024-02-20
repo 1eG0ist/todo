@@ -121,6 +121,9 @@ class _ProfileState extends State<Profile> {
                 const SizedBox(height: 20),
                 Text("Age", style: miniTextStyle),
                 Text(userInfo["age"].toString(), style: mainTextStyle,),
+                const SizedBox(height: 20),
+                Text("Points", style: miniTextStyle),
+                Text(userInfo["tasks_points"].toString(), style: mainTextStyle,),
                 const SizedBox(height: 20,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
